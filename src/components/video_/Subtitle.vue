@@ -1,0 +1,238 @@
+<template lang="html">
+<div class="">
+    <div id="btn_box" v-show="$route.name != 'content'">
+        <span>
+        <v-btn fab small v-on:click="subtitle_stop($event)">
+          <v-icon color="#82B1FF">blur_on</v-icon>
+        </v-btn>
+        <v-btn fab small v-on:click="words_open()">
+          <v-icon color="#82B1FF">list_alt</v-icon>
+        </v-btn>
+      </span>
+    </div>
+    <!-- word tooltip -->
+    <v-tooltip top v-model="show" large>
+        <template v-slot:activator="{ on }">
+            <div id="out">
+                <div class="pl-4 pr-2" top id="subtitle_box">
+                    <span
+            id="subtitle_span"
+            v-on:mouseup="select_drag($event,subtitle_open.split('#')[0])"
+          >{{subtitle_open.split('#')[0]}}</span>
+                    <v-icon class="pr-2 pl-3" large id="bookmark_check" v-show="subtitle_open&&($route.name != 'content')" color="white" v-on:click="subtitle_bookmark(subtitle_open.split('#')[0])">bookmark</v-icon>
+                    <v-icon class="pr-2" large id="bookmark_check" v-show="subtitle_open&&($route.name != 'content')" color="white" v-on:click="record_open(subtitle_open.split('#')[1])">mic</v-icon>
+                </div>
+            </div>
+        </template>
+        <span id="tooltop" style="color:white"></span>
+        <v-icon middle v-on:click="word_bookmark($event,false)" color="whtie">add</v-icon>
+        <v-icon middle v-on:click="show=false" color="white">clear</v-icon>
+    </v-tooltip>
+
+    <div class="text-xs-center">
+    </div>
+    <v-alert :value="alert" type="white" transition="scale-transition">
+        <v-layout row wrap>
+            <v-flex v-for="line in subtitle_word" xl2 sm2 md2>
+                <v-btn small color="teal lighten-1" class="pa-1 ma-1" v-on:click="word_bookmark($event,true)">{{line['text']['content']}}</v-btn>
+            </v-flex>
+        </v-layout>
+    </v-alert>
+    <v-layout row justify-center>
+        <v-dialog v-model="dialog" persistent transition="dialog-bottom-transition" id="record" width="700">
+            <v-card flat class="pt-1" height="470">
+              <v-btn class="play_btn" fab small v-on:click="open_close()">
+                <v-icon color="#82B1FF">close</v-icon>
+              </v-btn>
+              <record_></record_>
+            </v-card>
+        </v-dialog>
+    </v-layout>
+
+</div>
+</template>
+
+<script>
+import record_ from '@/components/video_/Record';
+import {mapActions,mapGetters} from 'vuex'; //vuex
+export default {
+  components: {
+    record_
+  },
+  data() {
+    return {
+      video: "", //video element
+      subtitle: [], //subtitle
+      interval: "", //video time check interval
+      video_time_check: "", //video time check
+      subtitle_open: "", //subtitle open
+      subtitle_word: [], //word search button list
+      show: false, //tooltip open
+      location: {
+        _x: '',
+        _y: '',
+      },
+      dialog: false,
+      location: '',
+      alert: false,
+    }
+  },
+  methods: {
+    ...mapActions(['subtitle_action','search_action', 'bookmark_action', 'bookmark_image_action', 'subtitle_record_action','open_record_action']),
+    open_close(){
+      this.dialog = false;
+      this.open_record_action(false);
+    },
+    words_open() {
+      if (this.alert) {
+        this.alert = false;
+      } else {
+        this.alert = true;
+      }
+    },
+    record_open(value) {
+      this.subtitle_record_action(value);
+      this.dialog = true;
+      this.open_record_action('true');
+      if (!this.video.paused) {
+        this.video.pause();
+      }
+    },
+    word_select(subtitle) {
+      const form = new FormData();
+      form.append('data',subtitle);
+      this.$http.post("https://localhost/Capstone_practice/project_videoPlayer/api/test2.php",form).then(result=>{
+        this.subtitle_word = result.data;
+        this.words_open();
+      }).catch(result=>{
+        console.log("service error");
+      });
+    },
+    select_drag(evt, subtitle) {
+      let selectionText = document.getSelection();
+      document.getElementById('tooltop').innerHTML = selectionText;
+      if (document.getElementById('tooltop').innerHTML) {
+        this.show = true;
+      } else {
+        this.word_select(subtitle);
+      }
+    },
+    word_bookmark(evt, check) {
+      let word;
+      if (check) {
+        word = evt.target.innerHTML;
+      } else {
+        word = document.getElementById('tooltop').innerHTML;
+      }
+      // let form = new FormData();
+      // form.append('word',word);
+
+      this.$http.post("api/searchEn?word="+word).then(result=>{
+        //?word ??? github 확인해보기
+        console.log(result.data);
+        if (result.data === 'undefined') {
+          alert("is not search result");
+        } else {
+          word = word + "#"+result.data.mean.replace(/(\s*)/g,"");
+          for (let i = 0; i < result.data.length; i++) {
+            word = word + "\n" + result.data[i];
+          }
+          this.bookmark_action(word);
+        }
+      }).catch(result=>{
+        console.log("error");
+      });
+    },
+    subtitle_bookmark(value) {
+      this.cp_getter.click();
+      this.bookmark_image_action(this.cpd_getter);
+      this.bookmark_action(value);
+    },
+    subtitle_stop(evt) {
+      if (evt.target.innerHTML === "blur_on") {
+        evt.target.innerHTML = "blur_off";
+        this.subtitle_open = "";
+        clearInterval(this.interval);
+      } else {
+        evt.target.innerHTML = "blur_on";
+        this.interval = setInterval(() => {
+          this.video_time_check = this.video.currentTime;
+        }, 150);
+      }
+    },
+  },
+  mounted: function() {
+    this.video = this.v_getter;
+    this.$http.get("/api/videoInfo/subtitle/"+this.$route.query.video).then(result=>{
+      this.subtitle_action(result.data); //store.js action
+      this.subtitle = this.s_getter;
+      this.interval = setInterval(() => {
+        this.video_time_check = this.video.currentTime;
+      }, 100);
+    }).catch(result=>{
+      console.log("error");
+    });
+  },
+  computed: {
+    ...mapGetters({
+      v_getter: 'video_getter',
+      s_getter: 'subtitle_getter',
+      cp_getter: 'capture_getter',
+      cpd_getter: 'capture_data_getter',
+    }),
+  },
+  watch: {
+    video_time_check: function(data) { //subtitle view methods
+      for (let i = 0; i < this.subtitle.length; i++) {
+        if (this.video.currentTime.toFixed(1) == parseInt(this.subtitle[i][1][0]).toFixed(1)) {
+          this.subtitle_open = this.subtitle[i][2] + "#" + i;
+        } else if (this.video.currentTime.toFixed(1) == parseInt(this.subtitle[i][1][1]).toFixed(1)) {
+          this.subtitle_open = "";
+        }
+      }
+    }
+  },
+}
+</script>
+
+<style lang="css" scoped>
+#record {
+  height: 50% !important;
+  top: 50% !important;
+}
+#out {
+  width: 100%;
+  text-align: center;
+  font-size: 2.4rem;
+}
+#subtitle_box {
+  color: white;
+  font-size: 2.4rem;
+  background-color: rgba(255, 255, 255, 0.219);
+  position: relative;
+  display: inline-block;
+  height: 100%;
+  top: -150px;
+  cursor: pointer;
+  text-align: center;
+  z-index: 100;
+}
+#subtitle_box:hover {
+  background: #82B1FF;
+}
+#btn_box {
+  /* float:right; */
+  position: absolute;
+  top: 3%;
+}
+.btn {
+  float: left;
+}
+#bookmark_check:hover {
+  background: white;
+  border-radius: 20px;
+}
+#tooltop{
+  font-size: 1.7rem;
+}
+</style>

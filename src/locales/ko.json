@@ -1,0 +1,151 @@
+{
+  "message": "안녕",
+  "start":{
+    "first":"참가형 서비스로 다른 유저들과 함께 영상에 참여해 공부 할 수 있습니다.",
+    "second":"영상과퀴즈를 이용해서 어학실력을 기를 수 있습니다.",
+    "third":"100LS기능을 활용해서 회화능력을 올릴 수 있습니다.\n추천 단어나 앨범을 보면서 즐겁게 공부 할수 있습니다.",
+    "move":"GO語로 이동하기"
+  },
+  "picture_start":{
+    "first":"다른 유저가 참가가능한 영상 서비스",
+    "second":"회화 능력을 기르는 100LS서비스",
+    "third":"긴 문장이 기억나는 앨범 서비스",
+    "forth":"기억한 단어를 다시 학습하는 퀴즈 서비스"
+  },
+  "menu":{
+    "title":"영상을 이용한 어학 학습 서비스",
+    "home":"홈페이지",
+    "channel":"등록 채널",
+    "video_make":"영상 제작",
+    "favorite":"좋아하는 영상",
+    "quiz":"퀴즈",
+    "my_word_book":"나의 어휘집",
+    "my_voca_book":"나의 대사집",
+    "recom_word_book":"추천 Go語집",
+    "my_page":"마이페이지",
+    "help":"도움말",
+    "setting":"설정",
+    "middle_go":"Go集집"
+  },
+  "video_see":{
+    "comment":"댓글",
+    "attend":"참가",
+    "history":"히스토리",
+    "voca":"문법",
+    "voca_exp":"문법설명",
+    "word":"단어",
+    "word_bookmark":"단어북마크",
+    "script_bookmark":"대사북마크"
+  },
+  "message":{
+    "title":"타이틀",
+    "explain":"설명",
+    "category":"카테고리",
+    "create":"작성",
+    "created":"작성중"
+  },
+  "upload":{
+    "video":"영상업로드",
+    "subtitle":"자막업로드",
+    "video_select":"영상선택",
+    "subtitle_select":"자막선택",
+    "move":"다음으로",
+    "remove":"삭제",
+    "uploadStart":"업로드"
+  },
+  "subtitle":{
+    "subtitleStart":"자막",
+    "subtitleInput":"자막추가",
+    "subtitleUpload":"업로드한 자막",
+    "start":"시작",
+    "end":"끝",
+    "subtitle_upload":"자막업로드",
+    "upload":"업로드 중"
+  },
+  "create_video":{
+    "created":"편집중"
+  },
+  "content":{
+    "contentStart":"추가",
+    "search":"검색",
+    "voca":"문법",
+    "word":"단어",
+    "save":"저장",
+    "move":"다음"
+  },
+  "tag":{
+    "upload":"업로드",
+    "c-video":"비디오자르기",
+    "subtitle":"자막제작&수정",
+    "content":"문법&단어등록",
+    "message":"최종제작"
+  },
+  "helptool":{
+    "subtitleUpdate":"자막수정",
+    "continuity":"연속재생",
+    "url_copy":"현재시간 동영상 url복사",
+    "quiz":"퀴즈풀기"
+  },
+  "record":{
+    "recording":"녹음중...",
+    "graph_origin":"영상그래프",
+    "graph_record":"나의그래프",
+    "loop":"반복",
+    "score":"점"
+  },
+  "recommand":{
+    "advice":"추천",
+    "enrollment":"등록채널",
+    "movie":"영화",
+    "animation":"애니메이션",
+    "mellow":"멜로",
+    "fantasy":"판타지",
+    "action":"액션"
+  },
+  "allWord":{
+    "select":"저장한 단어장을 골라 주세요.",
+    "ok":"확인",
+    "allSubtitle":"모든 대사",
+    "memorizedWord":"외운 단어",
+    "memorizeNotWord":"외우지않은 단어",
+    "wordName":"단어장 이름",
+    "category":"카테고리",
+    "wordSelect":"언어선택"
+  },
+  "snapWord":{
+    "allSubtitle":"모든대사",
+    "business":"비즈니스",
+    "saySubtitle":"회화대사"
+  },
+  "calender":"월",
+  "myPage":{
+    "result":"자신의 단어테스트 결과",
+    "hundredResult":"자신의 100LS 결과",
+    "count":"회",
+    "heart":"좋아요",
+    "video":"영상",
+    "score":"성적",
+    "attend":"참석",
+    "privacy":"개인정보",
+    "channelPerson":"채널등록자수",
+    "ok_":"좋아요"
+  },
+  "quiz":{
+    "test":"퀴즈테스트",
+    "wordMean":"단어찾기",
+    "mean":"의미찾기",
+    "sayMean":"대사연상법",
+    "card":"카드선택",
+    "first":"동화를본후, 자신이 외운 단어를 확인 해봅시다.",
+    "second":"사용자에게 재미 있고 다양한 퀴즈, 단어 암기의 효율을 높여줍니다.",
+    "third":"자신이 원하는 퀴즈를 선택한 후 문제를 풀어 성적도 확인할 수 있습니다.",
+    "select":". 정확한 단어를 골라 주세요.",
+    "explain":"이 게임은 자신의 단어장에 저장된 단어를 이용해서 만든 단어의 정확한 의미를 찾는 퀴즈 입니다. 정답을 클릭해 주세요.",
+    "start":"퀴즈시작",
+    "solution":"퀴즈해결법",
+    "result":"결과",
+    "quizSelect":"선택",
+    "question":"문제",
+    "quizSolution":"해답"
+  }
+}

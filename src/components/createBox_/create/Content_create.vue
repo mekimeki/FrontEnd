@@ -1,0 +1,43 @@
+<template lang="html">
+  <v-container>
+    <v-layout row wrap>
+      <v-flex xs12 sm8 md8>
+        <v-layout row wrap>
+          <v-flex>
+            <video_></video_>
+            <subtitle_></subtitle_>
+          </v-flex>
+          <v-flex>
+            <search_></search_>
+          </v-flex>
+        </v-layout>
+      </v-flex>
+      <v-flex xs12 sm4 md4 class="pa-2">
+        <content_></content_>
+      </v-flex>
+    </v-layout>
+  </v-container>
+</template>
+
+<script>
+import video_ from "@/components/video_/Video2";
+import content_ from "@/components/createBox_/CreateContent";
+import search_ from "@/components/createBox_/CreateSearch";
+import subtitle_ from "@/components/video_/Subtitle"
+export default {
+  components: {
+    video_,
+    content_,
+    search_,
+    subtitle_,
+  },
+  data() {
+    return {
+
+    }
+  }
+}
+</script>
+
+<style lang="css" scoped>
+</style>

@@ -1,0 +1,260 @@
+<template lang="html">
+  <div>
+    <v-btn class="white--text" color="red lighten-1" small fab v-on:click="cut()">
+        <span>CUT</span>
+    </v-btn>
+    <v-btn color="#82B1FF" fab small v-on:click="click_play()">
+      <v-icon color="white">play_arrow</v-icon>
+    </v-btn>
+    <div class="text-xs-center">
+      <v-dialog v-model="open" hide-overlay persistent width="300">
+        <v-card>
+          <v-card-text>
+            <v-layout justify-center>
+              <span class="cut">{{$t('create_video')['created']}}</span>
+            </v-layout>
+            <v-progress-linear v-model="percent_video_cut" color="#82B1FF" value="10"></v-progress-linear>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </div>
+    <canvas style="display:none" id="canvasd" width="800" height="500"></canvas>
+    <span id="bar_start">{{video_firstTime}}</span>
+    <div id="ranges">
+        <input id="range_1" type="range" name="" value="" max="100" v-on:change="change_time_bar($event,true)">
+        <input id="range_2" type="range" name="" value="" max="100" v-on:change="change_time_bar($event,false)">
+    </div>
+    <br>
+    <span id="bar_end">{{video_lastTime}}</span>
+    <br>
+        <span class="textCheck pr-2">{{$t('subtitle')['start']}}:</span><input class="input pl-2" type="text" name="" value="" v-model="video_firstTime" v-on:keyup="keyup_time_change($event,true)">
+        <span class="textCheck pr-2 pl-3">{{$t('subtitle')['end']}}:</span><input class="input pl-2" type="text" name="" value="" v-model="video_lastTime" v-on:keyup="keyup_time_change($event,false)">
+        <div class="" v-show="up_getters.firstTime&&up_getters.lastTime">
+            <v-layout align-end justify-end row fill-height>
+                <v-btn large color="#82B1FF" class="white--text" v-on:click="move()">{{$t('create_video')['move']}}</v-btn>
+            </v-layout>
+        </div>
+    </div>
+</template>
+
+<script>
+import {
+  mapGetters,
+  mapActions
+} from 'vuex'; //vuex actions import
+export default {
+  data() {
+    return {
+      video: "", //video element
+      seek_bar: "", //seek bar element
+      time: [0, 10], //video time
+      video_firstTime: "",
+      video_lastTime: "",
+      firstTime: 0,
+      lastTime: 0,
+      open: false,
+      percent_video_cut: 0,
+      check: false,
+      canvas: '',
+      image: '',
+      image_view: '',
+      background_image: [],
+      dialog: false,
+    }
+  },
+  methods: {
+    ...mapActions(['video_cut_actions', 'percent_action']),
+    move() {
+      this.percent_action(0);
+      this.$router.push({
+        name: 'subtitle',
+        query: {
+          video: this.$route.query.video,
+          firstTime: this.up_getters.firstTime,
+          lastTime: this.up_getters.lastTime
+        }
+      });
+    },
+    change_time_bar(evt, check) {
+      if (check) {
+        this.firstTime = (this.video.duration * (evt.target.value / 100));
+        this.video_firstTime = this.$T_change(Math.ceil(this.video.duration * (evt.target.value / 100)));
+        document.getElementById('bar_start').style.left = document.getElementById('bar_start').style.left = parseInt(document.getElementById('range_1').value) + "%";
+      } else {
+        this.lastTime = (this.video.duration * ((evt.target.value) / 100));
+        this.video_lastTime = this.$T_change(Math.ceil(this.video.duration * (parseInt(evt.target.value) / 100)));
+        document.getElementById('bar_end').style.left = document.getElementById('bar_end').style.left = (parseInt(document.getElementById('range_2').value)) + "%";
+      }
+    },
+    click_play() {
+      this.video.currentTime = Math.ceil(parseInt(this.firstTime));
+      this.video.play();
+      let interval = setInterval(() => {
+        if (parseInt(this.video.currentTime).toFixed(1) === parseInt(this.lastTime).toFixed(1)) {
+          this.video.pause();
+          clearInterval(interval);
+        }
+      }, 150);
+    },
+    time_change(seconds) {
+      let hour = parseInt(seconds / 3600);
+      let min = parseInt((seconds % 3600) / 60);
+      let sec = seconds % 60;
+      return hour + ":" + min + ":" + sec
+    },
+    time_second(time) {
+      let time_s = time.split(":");
+      let hour = parseInt((time_s[0] * 60) * 60);
+      let min = parseInt(time_s[1] * 60);
+      let sec = parseInt(time_s[2]);
+      return hour + min + sec;
+    },
+    change_time() {
+      this.video_firstTime = this.time[0];
+      this.video_lastTime = this.time[1];
+      this.firstTime = this.$T_change(this.video.duration * (this.time[0] / 100));
+      this.lastTime = this.$T_change(this.video.duration * (this.time[1] / 100));
+    },
+    keyup_time_change(evt, check) {
+      console.log("check", check);
+      if (check) {
+        document.getElementById('range_1').value = Math.ceil(parseInt((this.time_second(evt.target.value) * 100) / this.video.duration));
+        document.getElementById('bar_start').style.left = document.getElementById('bar_start').style.left = parseInt(document.getElementById('range_1').value) + "%";
+      } else {
+        document.getElementById('range_2').value = Math.ceil(parseInt((this.time_second(evt.target.value) * 100) / this.video.duration));
+        document.getElementById('bar_end').style.left = document.getElementById('bar_end').style.left = parseInt(document.getElementById('range_2').value) + "%";
+      }
+    },
+    cut() {
+      this.open = true;
+      if ((this.firstTime + this.lastTime) > 300) {
+        alert("5분을 초과 하였습니다.");
+      } else {
+        this.upload();
+      }
+    },
+    upload() {
+      let upload_data = { //setTime
+        video_pk: this.$route.query.video, //up_getters.video,
+        firstTime: this.firstTime,
+        lastTime: this.lastTime,
+      }
+      this.video_cut_actions(upload_data);
+      let inter = setInterval(() => {
+        this.percent_video_cut = this.percent;
+        if (this.percent_video_cut === 100) {
+          if (this.up_getters.firstTime && this.up_getters.lastTime) {
+            this.open = false;
+            clearInterval(inter);
+          }
+        }
+      }, 100);
+    },
+  },
+  mounted: function() {
+    this.$http.get("api/video/snapShot/" + this.$route.query.video).then(result => {
+      console.log(result.data.img);
+      for (var i = 0; i < result.data.img.length; i++) {
+        let img = document.createElement('img');
+        img.style.width = '9.999%';
+        img.style.height = '100%';
+        img.src = result.data.img[i];
+        document.getElementById('ranges').append(img);
+      }
+    }).catch(result => {
+      console.log("error");
+    });
+
+    this.canvas = document.getElementById("canvasd"); //canvas element
+    this.image = document.getElementById("image"); //image element
+
+    this.video = this.v_getter; //video element
+    this.seek_bar = this.seb_getter; //seek_bar element
+    this.video.onloadeddata = () => {
+      this.firstTime = this.$T_change(this.firstTime);
+      this.lastTime = this.$T_change(this.video.duration);
+    }
+  },
+  computed: {
+    ...mapGetters({
+      v_getter: 'video_getter',
+      s_getter: 'subtitle_getter',
+      sb_getter: 'subtitle_buffer_getter',
+      seb_getter: 'seek_bar_getter',
+      up_getters: 'upload_getters',
+      percent: 'percent_getter'
+    }),
+  },
+}
+</script>
+<style lang="css" scoped>
+#ranges {
+  position: relative;
+  margin: auto;
+  /* margin: 0 auto 20px; */
+  height: 100px;
+  width: 100%;
+  text-align: center;
+  border: 4px solid #82B1FF;
+  background-size: 10% 100%;
+  float: left !important;
+}
+input[type=range] {
+  -webkit-appearance: none;
+  width: 50%;
+  cursor: pointer;
+  animate: 0.2s;
+  background-size: 20% 20%;
+}
+#ranges input {
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  top: 15px;
+  width: 100%;
+  outline: none;
+  height: 60px;
+  margin: 0;
+  padding: 0;
+  border-radius: 8px;
+}
+#ranges input::-webkit-slider-thumb {
+  pointer-events: all;
+  position: relative;
+  z-index: 1;
+  -webkit-appearance: none;
+  height: 110px;
+  width: 5px;
+  background: #82B1FF;
+  cursor: pointer;
+}
+#bar_start {
+  margin: auto;
+  border-radius: 10px;
+  position: relative;
+  left: 0%;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+#bar_end {
+  margin: auto;
+  padding: 5px 5px;
+  border-radius: 10px;
+  position: relative;
+  left: 100%;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+.input {
+  border-radius: 5px;
+  border: 2px solid #82B1FF;
+  font-size: 1.2rem;
+}
+.textCheck {
+  font-size: 1.2rem;
+}
+.cut {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+</style>
